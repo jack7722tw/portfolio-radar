@@ -86,5 +86,35 @@ export interface QuoteData {
   l: number;  // low
 }
 
+export interface Recommendation {
+  id: string;
+  timestamp: string;
+  symbol: string;
+  type: 'stop_loss' | 'take_profit' | 'alternative' | 'hot_money';
+  priceAtRecommendation: number;
+  content: string;
+  confidence: '高' | '中' | '低';
+  outcome: RecommendationOutcome | null;
+}
+
+export interface RecommendationOutcome {
+  evaluatedAt: string;
+  priceAtEvaluation: number;
+  returnPercent: number;
+  followed: boolean;
+}
+
+export interface RecommendationStats {
+  total: number;
+  evaluated: number;
+  wins: number;
+  winRate: number;
+  avgReturn: number;
+  followedWinRate: number;
+  unfollowedWinRate: number;
+  followedAvgReturn: number;
+  unfollowedAvgReturn: number;
+}
+
 export type QuotesMap = Record<string, QuoteData>;
 export type StopAnalysisMap = Record<string, StopAnalysis>;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getQuotes } from '@/lib/finnhub';
 import { analyzeWithClaude, parseJsonResponse } from '@/lib/anthropic';
 import { STOPS_PROMPT, fillPrompt } from '@/lib/prompts';
+import { getCached, setCache } from '@/lib/cache';
 import type { StopAnalysisMap } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
@@ -14,6 +15,13 @@ export async function POST(request: NextRequest) {
     }
 
     const symbols = positions.map((p: { symbol: string }) => p.symbol);
+    const cacheKey = `stops:${symbols.sort().join(',')}`;
+
+    const cached = getCached<StopAnalysisMap>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
     const quotes = await getQuotes(symbols);
 
     const prompt = fillPrompt(STOPS_PROMPT, {
@@ -23,6 +31,8 @@ export async function POST(request: NextRequest) {
 
     const response = await analyzeWithClaude(prompt, 'haiku');
     const analysis = parseJsonResponse<StopAnalysisMap>(response);
+
+    setCache(cacheKey, analysis);
 
     return NextResponse.json(analysis);
   } catch (error) {

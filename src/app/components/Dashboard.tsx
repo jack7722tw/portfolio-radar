@@ -4,12 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Position, QuoteData, StopAnalysisMap } from '@/lib/types';
 import { getPositions, savePositions } from '@/lib/store';
+import { addRecommendation } from '@/lib/recommendations';
 import PortfolioView from './PortfolioView';
 import OpportunityScanner from './OpportunityScanner';
 import JournalTab from './JournalTab';
 import StatsTab from './StatsTab';
 import WeeklyReport from './WeeklyReport';
 import RadarTab from './RadarTab';
+import AccuracyTab from './AccuracyTab';
 
 export default function Dashboard() {
   const [positions, setPositions] = useState<Position[]>([]);
@@ -76,6 +78,19 @@ export default function Dashboard() {
           };
         });
         handleUpdatePositions(updated);
+
+        for (const symbol of Object.keys(data)) {
+          const a = data[symbol];
+          const q = quotes[symbol];
+          if (!a || !q) continue;
+          addRecommendation({
+            symbol,
+            type: 'stop_loss',
+            priceAtRecommendation: q.c,
+            content: `止損 $${a.suggestedStopLoss} / 止盈 $${a.suggestedTakeProfit} — ${a.currentTrend}`,
+            confidence: a.confidence,
+          });
+        }
       }
     } catch (err) {
       console.error('Analysis failed:', err);
@@ -87,9 +102,10 @@ export default function Dashboard() {
   return (
     <div className="max-w-2xl mx-auto p-4 pb-20">
       <Tabs defaultValue="portfolio" className="w-full">
-        <TabsList className="w-full grid grid-cols-6 bg-muted/50">
+        <TabsList className="w-full grid grid-cols-7 bg-muted/50">
           <TabsTrigger value="portfolio" className="text-xs">持倉</TabsTrigger>
           <TabsTrigger value="scanner" className="text-xs">掃描</TabsTrigger>
+          <TabsTrigger value="accuracy" className="text-xs">準確度</TabsTrigger>
           <TabsTrigger value="journal" className="text-xs">日誌</TabsTrigger>
           <TabsTrigger value="stats" className="text-xs">統計</TabsTrigger>
           <TabsTrigger value="report" className="text-xs">週報</TabsTrigger>
@@ -111,6 +127,10 @@ export default function Dashboard() {
 
         <TabsContent value="scanner" className="mt-4">
           <OpportunityScanner positions={positions} />
+        </TabsContent>
+
+        <TabsContent value="accuracy" className="mt-4">
+          <AccuracyTab />
         </TabsContent>
 
         <TabsContent value="journal" className="mt-4">

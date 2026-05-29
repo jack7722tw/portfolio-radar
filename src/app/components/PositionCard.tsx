@@ -7,6 +7,7 @@ import {
   calcUnrealizedPnL,
   calcUnrealizedPnLPercent,
   calcMarketValue,
+  calcPositionSizePercent,
   formatCurrency,
   formatPercent,
 } from '@/lib/calculations';
@@ -104,6 +105,15 @@ export default function PositionCard({
               止損: {analysis.stopLossReason}
             </div>
           )}
+          <div className="flex items-center gap-2 pt-1 border-t border-border/50 mt-1">
+            <span className="text-muted-foreground">建議佔組合</span>
+            <span className="font-mono text-[#fbbf24] font-medium">
+              {calcPositionSizePercent(analysis.atrPercent, analysis.confidence)}%
+            </span>
+            <span className="text-muted-foreground">
+              (ATR {analysis.atrPercent.toFixed(1)}%)
+            </span>
+          </div>
         </div>
       )}
 

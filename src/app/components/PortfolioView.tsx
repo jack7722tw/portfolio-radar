@@ -7,6 +7,7 @@ import {
   calcTotalValue,
   calcTotalPnL,
   calcAllocationPercent,
+  calcConcentration,
   formatCurrency,
   formatPercent,
 } from '@/lib/calculations';
@@ -49,6 +50,8 @@ export default function PortfolioView({
     return q.c <= p.stopLoss;
   }).length;
 
+  const concentrationWarnings = calcConcentration(positions, quotes);
+
   const handleAdd = useCallback((position: Position) => {
     onUpdatePositions([...positions, position]);
   }, [positions, onUpdatePositions]);
@@ -77,6 +80,19 @@ export default function PortfolioView({
           {formatCurrency(totalPnL)} 未實現損益 ({formatPercent(pnlPercent)})
         </div>
       </div>
+
+      {concentrationWarnings.length > 0 && (
+        <div className="bg-[#ff4d6d]/10 border border-[#ff4d6d]/30 rounded-lg p-3 space-y-1">
+          {concentrationWarnings.map(w => (
+            <div key={w.sector} className="flex items-center gap-2 text-sm">
+              <span className="text-[#ff4d6d] font-medium">集中度警告</span>
+              <span className="text-foreground">
+                {w.sector} 佔 {w.percent.toFixed(1)}%（{w.symbols.join(', ')}）
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         <Button size="sm" variant="outline" onClick={() => setShowInput(!showInput)}>

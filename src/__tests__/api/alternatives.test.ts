@@ -9,6 +9,11 @@ vi.mock('@/lib/anthropic', () => ({
   parseJsonResponse: vi.fn(),
 }));
 
+vi.mock('@/lib/cache', () => ({
+  getCached: vi.fn(() => null),
+  setCache: vi.fn(),
+}));
+
 import { POST } from '@/app/api/analyze/alternatives/route';
 import { getQuotes } from '@/lib/finnhub';
 import { analyzeWithClaude, parseJsonResponse } from '@/lib/anthropic';

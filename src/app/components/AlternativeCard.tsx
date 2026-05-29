@@ -2,6 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import type { Alternative } from '@/lib/types';
+import { calcPositionSizePercent } from '@/lib/calculations';
 
 interface Props {
   alternative: Alternative;
@@ -32,8 +33,13 @@ export default function AlternativeCard({ alternative }: Props) {
       {alternative.catalyst && (
         <div className="text-xs text-[#fbbf24]">催化劑: {alternative.catalyst}</div>
       )}
-      <div className="text-xs text-muted-foreground">
-        建議持有: {alternative.expectedHoldingPeriod}
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">
+          建議持有: {alternative.expectedHoldingPeriod}
+        </span>
+        <span className="text-[#fbbf24] font-mono">
+          建議佔組合 {calcPositionSizePercent(3.5, alternative.confidence)}%
+        </span>
       </div>
     </div>
   );
